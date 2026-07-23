@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   output: 'export',
-  basePath: '/battle_bingo',
+  basePath: '/game202_battle_bingo',
   distDir: 'docs',
 }
 

@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, RotateCcw, Trophy, Target, Wand2 } from 'lucide-react';
+import { M_PLUS_Rounded_1c } from 'next/font/google';
+
+const displayFont = M_PLUS_Rounded_1c({
+  weight: ['800'],
+  subsets: ['latin'],
+  variable: '--font-display',
+});
 
 const BattleBingo = () => {
   const [playerBoard, setPlayerBoard] = useState(Array.from({ length: 5 }, () => Array(5).fill(0)));
@@ -11,154 +18,155 @@ const BattleBingo = () => {
   const [gameStatus, setGameStatus] = useState('playing');
   const [jankenPlayerChoice, setJankenPlayerChoice] = useState(null);
   const [jankenCpuChoice, setJankenCpuChoice] = useState(null);
+  const [jankenRound, setJankenRound] = useState(1);
   const [turnHistory, setTurnHistory] = useState([]);
   const getRandomMessage = (type, number = null) => {
     const messages = {
       jankenStart: [
-        'じゃんけん勝負～！負けたほうが先に選ぶってことで～！グーかチョキかパー、どれにしようかな～ふふふ～あ、ちなみにね、うち、じゃんけんずっと強いんよ～運がいいから～',
-        'まずはじゃんけんで勝負～！負けたほうが先に選ぶってことで～！うち、本気よ～あ、そういえばね、うち、この前、海に行ったんだけど～すごく楽しかった～ふふふ～',
-        'ふふふ、じゃんけん勝負だ～！負けたら先に選ぶってやつね～！さあ、どれにしようかな～あ、でもね、どれ選んでもうち、勝つんよ～女神の力よ～ふふふふ～',
-        'よーし、じゃんけんポン！負けたほうが先よ～グー、チョキ、パーのどれ～うち、本気出しちゃう～ふふふ～あ、キミ、ジンクスとかある～？うちは別にない～いつでも勝つから～',
+        'じゃんけんをしましょう。負けた方が先に選ぶルールですよ。',
+        'まずはじゃんけんですね。負けたら先攻、覚えておいてくださいね。',
+        'じゃんけん勝負です。真剣にいきますよ。',
+        'グー、チョキ、パー。どれを選びますか？',
+        'じゃんけんから始めましょう。ルールは簡単、負けた方が先攻です。',
+        '手を選んでくださいね。わたし、油断はしませんよ。',
+        'では、じゃんけんで先攻を決めましょうか。',
+        '勝負の前に、まずはじゃんけんですね。',
       ],
       jankenWin: [
-        '🎉 あ、勝った～！ラッキー～！キミが先に選ぶのね～ふふふふ！うちの運、最高だね～この調子でビンゴも余裕～キミ、覚悟しといてね～あ、ちなみにじゃんけん得意なんよ～',
-        '🎉 え、勝っちゃった～！運いいな～！さあさあ、キミが先に選んで～うち、準備万端で待ってるから～ふふふ！うち、勝つ気満々～あ、ちなみにうち、何やってもだいたい勝つ～',
-        '🎉 わ、勝った～！ビギナーズラック～！キミ先ね～ふふふふ！キミ、頑張ってくれたまえ～うちはね、このまま全勝を目指しちゃう～うふふふ～あ、今日の運、最高～',
-        '🎉 勝った～！うちの勝ちだ～！キミが先に選ぶ羽目に～ごめんね～ふふふ！いやー、気持ちいい～このテンションでビンゴも行っちゃおう～キミ、びびってる～あ、もうこれから勝利の道よ～',
+        '🎉 勝ちました！あなたが先攻ですね。',
+        '🎉 勝たせてもらいました。準備してくださいね。',
+        '🎉 わたしの勝ちです。どうぞ、先に選んでくださいね。',
+        '🎉 やりました！このままビンゴも決めちゃいますよ。',
+        '🎉 じゃんけんはわたしの勝ちです。あなたから始めてくださいね。',
+        '🎉 幸先がいいですね。あなたが先攻です。',
       ],
       jankenLose: [
-        '💔 あ、負けちゃった～…ショック…うち先に選ぶのか…悔しいな～でもね、ビンゴではね、うち、全力で来ちゃうからね～覚悟してね～この悔しさ、バネにするぞ～',
-        '💔 え、負けた…あ、うちが先か…悔しい…頑張らなきゃ…うち、この悔しさをバネにしてビンゴで逆襲しちゃおう～ふふふ～キミなめんなよ～',
-        '💔 あ、負けた…うちが先ね…まいったな～キミ強いな～でもビンゴは別よ～うち、キミに絶対に勝つんだからね～ふふふ～ビンゴは別よ～',
-        '💔 ぎゃー負けた～！うちが先に選ぶ羽目に…あーもう悔しい～！でもね、ここからが勝負なのよ～ビンゴでは容赦しないんだからね～ふふふふ！キミ、震えて待ってろ～',
+        '💔 負けちゃいました。わたしが先に選びますね。この分はビンゴで取り返します。',
+        '💔 負けました。ビンゴでは絶対に逆転してみせますよ。',
+        '💔 参りましたね。でもビンゴは別です。ちゃんと勝ちにいきますよ。',
+        '💔 悔しいですけど、この分はビンゴでお返ししますね。',
+        '💔 じゃんけんは負けちゃいましたけど、本番はここからです。',
+        '💔 わたしが先攻ですね。慎重にいきましょう。',
       ],
       jankenDraw: [
-        'あいこだ～！もう一回～！キミ、今度は本気で来てくれるよね～うちも本気よ～ふふふ～キミ、震えて待ってろ～ふふふ～',
-        'あ、同じだった～もう一回やっちゃおう～どっちが強いのか決着つけようぜ～今度こそうち、勝つぞ～ふふふ～',
-        'あいこか～面白い～もう一回ね～うち、今度こそ勝つぞ～キミ、覚悟しときなさい～ふふふ～',
-        'あいこで～～もう一回頑張ろう～キミ、覚悟はいい～ふふふ～うち、本気出すよ～ふふふふ～',
+        'あいこですね。もう一度いきましょう。',
+        '同じでしたね。もう一度、決着つけましょう。',
+        'あいこです。もう一度いきますよ。',
+        'あいこですね。次こそ決めましょう。',
+        'また同じ手でしたね。もう一回いきます。',
+        '決着つきませんでしたね。続けましょう。',
       ],
       start: [
-        'さあさあ、ビンゴの時間ね～！張り切っていっちゃおう～！キミ、負けちゃダメよ～ふふふ！うち、いっぱい数字選んじゃって早くビンゴ作っちゃおう～テンション最高～あ、これから勝ったらお祝いしましょ～ふふふ～',
-        '出番だ～！もう心の準備はいいのかな～？うち、いつでも準備万端だけど～！やっちゃいましょ～ビンゴゲーム～ふふふふ！キミ、びびってたら駄目よ～あ、ちなみにうちって、いつもこんなテンション～',
-        'おまかせボタンで楽しちゃうのもありなんだけど、キミはどうするのかな～キミの選択ってやつが気になっちゃう～どっち選ぶのかな～ふふふ～あ、うちはもう全部見えてる～ふふふ～',
-        '選択の時間よ～！うちと一緒にビンゴを成し遂げちゃいましょ～ふふふ！キミ、うちに負けないように頑張ってね～でも負けちゃうと思うけど～ふふふ～あ、楽しいのが一番よね～',
-        'ドキドキ…選んでみましょ～！どっちが先に5個揃えるのかな～わくわくしちゃう～うち、めっちゃドキドキ～興奮で手が震えちゃう～あ、これって心臓に悪いんだけど、楽しいから～ふふふ～',
-        'さあ、数字を選んじゃいましょ～ふふふ！ここからが本当の勝負よ～キミ、頑張ってくれるよね～期待してるから～ふふふふ～あ、でもうちが勝つ可能性99.9%～ふふふ～',
-        'ビンゴゲーム開始～！さあ、どっちが勝つかな～あ、もう勝者は決まってる～うちだけど～ふふふ～あ、キミも楽しみましょ～これ、すごい楽しいゲームなんよ～',
-        '選択の時間だね～さあさあ～あ、ちなみにね、うち、このゲーム、いっぱいやってるんだけど～絶対勝つ～ふふふ～今回もね～',
-        'さあ、始まるね～ふふふ～うち、すごい気分いい～こういう時って、最高の運がやってくる～女神の祝福だ～ふふふふ～',
-        'ビンゴ時間～！わくわく～あ、キミ、今日のキミの運気、どう～？うちはね、いつも最高～ふふふ～',
-        'さあさあ、行くよ～！あ、ちなみにね、うち、朝からテンション上げてくるんよ～毎日～ふふふ～',
-        '選択タイム～！キミ、頑張ってね～うち、応援してる～でも敵として～ふふふふ～',
-        'ゲーム開始～！あ、キミ、運気ある～？あ、なくても大丈夫～うちが運持ってるから～ふふふ～',
-        '数字を選びましょ～ふふふ！あ、うち、最近ハッピーなんよ～毎日ハッピー～ふふふ～',
-        'さあ、勝負だ～！あ、でも楽しむのが一番ね～勝つのも楽しい～負けるのも楽しい～うちは楽しいことしか知らない～ふふふふ～',
-        'ビンゴゲーム、スタート～！あ、キミ、ちょっと緊張してる～？かわいい～頑張ってね～ふふふ～',
-        '行くよ～！あ、ちなみにね、うち、毎日新しい発見がある～今日は何かな～あ、ビンゴだ～ふふふ～',
-        'さあ、選んじゃいましょ～！あ、この時間、すごい好き～ドキドキが止まらない～楽しい～ふふふふ～',
+        'さあ、ビンゴの時間です。いきましょう。',
+        '出番ですね。準備はいいですか？',
+        'おまかせボタンに頼るのもアリですけど、あなたはどうしますか？',
+        '選択の時間です。一緒にビンゴを完成させましょう。',
+        'どちらが先に5つ揃えるか、見てましょうね。',
+        'さあ、数字を選んでくださいね。ここからが本番です。',
+        'ビンゴゲーム開始です。',
+        '始まりますね。集中していきましょう。',
+        'ビンゴの時間ですよ。',
+        '選択の時間です。相手ではあるけど、正々堂々いきましょうね。',
+        'お互いのボードに数字が揃いましたね。それじゃ始めましょう。',
+        '油断は禁物です。いきましょう。',
+        'ここからが本番ですね。気を引き締めていきます。',
+        '準備は整いましたね。始めましょう。',
       ],
       draw: [
-        '引き分けか…悔しいんだけど！うちだって全力だったのに～キミ、すごいじゃない～こういうキミって嫌いじゃないな～意外と強い～ふふふ～',
-        'どっちも全力だったんだ…こんなの珍しい～キミ、なかなかやるじゃん～でも次は負けないんだからね～うち、本気出すよ～',
-        'タイなんて、あり得ない悔しさ～！もう一回やろう～今度はうちが勝つ～！ぜったい勝つ～！キミ、覚悟しときなさい～ふふふ～',
-        '引き分けなんて珍しい…むむむ、キミなかなかやるね～もう一回っ！うち、今度こそ本気よ～ふふふ～キミ、やっぱり強い～',
-        '同時～！あ、こんなの初めて～キミ、すごい～！尊敬しちゃう～ふふふ～でも次は絶対勝つんだけど～ふふふふ～',
-        'あ、同点～！びっくりした～うち、こんなの初めて～キミ、やるじゃない～本当に～ふふふ～',
-        'え、同時に揃った～！あ、キミって運もいいんだ～うちと同じレベル～怖い～ふふふ～',
-        'タイ～！面白い～うち、こんなの初めてかも～キミとのビンゴ、意外と面白い～ふふふ～',
-        '同点…あ、キミも結構やるんだね～意外～でも最終的に勝つのはうちなんだけど～ふふふ～',
-        '引き分け…珍しい…キミ、すごい…本気で認めた～でも次は負けないんだから～覚悟しときなさい～ふふふふ～',
+        '引き分けですね。あなた、なかなかやりますね。',
+        'どちらも全力でしたね。次は負けませんよ。',
+        '同点とは悔しいです。次はわたしが勝たせてもらいますね。',
+        '引き分けとは珍しいこと。あなた、見事です。',
+        '同時とは。素直に認めます、お強いですね。',
+        '同点ですね。でも最終的に勝つのはわたしですよ。',
+        '互角の勝負でしたね。次で決めましょう。',
+        '同時にビンゴとは、いい勝負でしたね。',
       ],
       playerWin: [
-        '💔 あぁぁぁ負けちゃった～！キミのボードで5個揃っちゃった～！悔しいんよ！！！キミ、やるじゃない～次は絶対負けないんだから～覚悟しときなさいよね～！',
-        '💔 え、うそ、キミの勝ち～！？うちが選んだ数字でビンゴ成立しちゃったの～！？ぐぬぬ、悔しい～！キミ、なかなかやるわね～認めてあげる～！',
-        '💔 キミがビンゴ～！うち、負けちゃった…悔しいな～でもね、キミ強かったよ、本当に～次こそはうちが勝つんだからね～絶対よ～！',
-        '💔 あーもう！キミの勝利確定じゃない～！うちの選んだ数字がキミのビンゴを完成させちゃうなんて～悔しすぎる～！でもいい勝負だったわ～！',
-        '💔 ビンゴされちゃった～！キミ、すごいじゃない～！うち、全力だったのに負けるなんて～この悔しさ、次にぶつけてやるんだから～覚悟しときなさい～！',
-        '💔 うわぁぁぁキミが5個揃えちゃった～！うちの負け～！くやしい～！でもキミ、本当に強かったわ～素直に認める～次は負けないけどね～！',
-        '💔 キミのビンゴ成立～！うち、やられちゃった～悔しいけど、キミの実力は認めてあげる～でも次は容赦しないんだからね～うふふ～！',
-        '💔 あ、キミが勝っちゃった～！うちの選択がキミを勝たせちゃったなんて～ぐぬぬ～でもいい勝負だった～リベンジさせてもらうわよ～！',
-        '💔 キミの勝ち～！5個揃っちゃった～！うち、悔しくて泣きそうなんだけど～でもキミ、やるわね～次は覚悟しときなさいよ～！',
-        '💔 負けた～！キミにビンゴ取られちゃった～！あーもう悔しい～！でもね、この悔しさがうちを強くするんだから～待っててよね～！',
+        '💔 負けました。あなたのボードで5つ揃っちゃいましたね。次は絶対負けません。',
+        '💔 あなたの勝ちです。わたしの選んだ数字でビンゴを完成させるなんて、見事です。',
+        '💔 あなたのビンゴですね。悔しいですけど、本当に強かったです。',
+        '💔 わたしの選んだ数字が仇になるなんて。いい勝負でしたね。',
+        '💔 やられました。この悔しさ、次にぶつけさせてもらいますね。',
+        '💔 負けちゃいましたね。この悔しさが、わたしを強くしてくれます。',
+        '💔 完敗です。あなたの読み、見事でした。',
+        '💔 わたしの負けですね。次こそは、と誓います。',
       ],
       lunaWin: [
-        '🎉 やったぁぁぁ！うちの勝ち～！キミが選んだ数字でうちのボード5個揃っちゃった～！ふふふふ！これがルナ様の実力なんよ～！',
-        '🎉 ビンゴ～！うち、勝っちゃった～！キミの選択がうちを勝たせてくれたわね～ありがとう～って言うべきかしら～うふふふ～！',
-        '🎉 うちのボードで5個揃った～！勝利確定～！キミ、いい勝負だったわよ～でもうちのほうがちょっと上だったってことね～ふふふ～！',
-        '🎉 キミが選んでくれた数字でビンゴ成立～！うちの勝ち～！やったー！この勝利の味、最高なんよ～！',
-        '🎉 勝った勝った勝った～！うちのビンゴ完成～！キミ、悔しいでしょ～でも次も頑張ってね～うちに挑戦してくれるの待ってるから～！',
-        '🎉 うちが5個揃えちゃった～！ビンゴ～！女神の祝福がうちに降り注いでる～キミも頑張ったけど、今回はうちの勝ちね～ふふふ～！',
-        '🎉 ビンゴビンゴビンゴ～！うちの圧勝じゃない～！キミ、もうちょっと頑張れたんじゃない～？うふふ、冗談よ～いい勝負だったわ～！',
-        '🎉 やりました～！うちの勝利～！5個揃っちゃった～！このテンション、このまま維持していくわよ～次もよろしくね～！',
-        '🎉 うちがビンゴ取っちゃった～！キミ、残念だったわね～でも楽しかったでしょ～？うちはすっごく楽しかった～また遊ぼうね～！',
-        '🎉 勝利の女神がうちに微笑んでる～！5個揃った～！キミとのビンゴ、最高に楽しかったわ～次は負けないように頑張ってね～うふふ～！',
+        '🎉 わたしの勝ちです。あなたの選んだ数字でビンゴが完成しました。',
+        '🎉 ビンゴです。あなたの選択に感謝しますね。',
+        '🎉 わたしのボードで5つ揃いました。勝利です。',
+        '🎉 あなたが選んでくれた数字でビンゴ成立、わたしの勝ちです。',
+        '🎉 勝たせてもらいました。また挑んでくださいね。',
+        '🎉 勝利です。次も油断しないでくださいね。',
+        '🎉 わたしの勝ちですね。いい勝負でした。',
+        '🎉 ビンゴが成立しました。次も期待してますよ。',
       ],
       lunaSelect: [
-        `${number} をぽちっ～！あ、ちなみにね、うち昨日すごい美味しいケーキ食べたんよ～生クリームたっぷりで～ふふふ～`,
-        `${number} で〜す！このテンション、止まんない～うち、常にハイテンションなんよ～あ、何か音楽とか聴く～？うちはクラシック好きなんよ～`,
-        `${number} ～！ふっふっふ、あ、キミのボード見たい～どうなってるのかな～ふふふ～`,
-        `${number} をチョイス～！こっちはね、戦略があるんよ～って言うと思ったでしょ～実は適当よ～ふふふ～`,
-        `ふふ、${number} を選んじゃう～！このテンションで突き進む～あ、そういえばうち、昨日の晩御飯カレーうどん食べたんよ～美味しかったなあ～`,
-        `${number} ね！え、これ当たるのかな～ふふふ～でもね、うちは運がいいんよ～女神に愛されてる～ふふふふ～`,
-        `${number} でーす！あ、キミって何が好物～？うちは何でも大好きなんよ～特にお菓子～食べないことないんだけど、やっぱり食べてる～ふふふ～`,
-        `${number} ～！うち、今すごい集中力で選んでるんだけど、それでも別のこと考えてる～あ、晩御飯何にしようかな～ふふふ～`,
-        `${number} をぽいっ～！あ、最近新しいお友達ができたんよ～すごく可愛い子～うちと気が合うんよ～ふふふ～`,
-        `${number} で～す！うち、実は占いとか好きなんよ～今日のラッキーナンバー当たった～ふふふ～`,
-        `${number} ね！あ、キミって何時に寝る～？うちは夜更かし得意なんよ～つい朝まで起きちゃう～ふふふ～`,
-        `${number} をたっち～！あ、そういえばね、うち、新しいヘアスタイル考え中なんだけど～何がいいと思う～？ふふふ～`,
-        `${number} ～！うち、今日すごくいい気分～朝からテンション最高～ふふふ～あ、毎日こんな感じなんだけど～ふふふふ～`,
-        `${number} でーっ！あ、キミ、推しのアニメキャラとかいる～？うちはね、可愛い子ばっかり好きなんよ～ふふふ～`,
-        `${number} をぽちっ～！昨日、映画見に行ったんよ～すごく泣いちゃった～あ、でも今はビンゴに集中～ふふふ～`,
-        `${number} で～す！あ、うち、最近ダイエット中かも～って言うと思ったでしょ～食べてます～ふふふ～`,
-        `${number} ね～！あ、何か季節の話～冬は好き～？うちは冬のお菓子が好き～温かいやつ～ふふふ～`,
-        `${number} をたっち～！あ、キミの周りに変な人いる～？うちはね、自分が一番変かな～ふふふ～ハイテンション過ぎて～ふふふふ～`,
+        `${number}、いただきます。`,
+        `${number}にします。`,
+        `${number}。あなたのボードも気になりますね。`,
+        `${number}を選びますね。`,
+        `${number}にしましょう。`,
+        `${number}です。`,
+        `${number}ですね。`,
+        `${number}。今、集中してます。`,
+        `${number}、こちらにします。`,
+        `${number}です。これで決まりですね。`,
+        `${number}を選ばせてもらいます。`,
+        `${number}にしますね。`,
+        `${number}。慎重に選びました。`,
+        `${number}、これでいきます。`,
       ],
       playerReach: [
-        `${number} を選んだら…えっ、キミがリーチ！？やられた～！キミ、あと1個で勝ちじゃない～！うち、次は慎重に選ばないと～ドキドキしてきた～！`,
-        `${number} …あ、キミのボードで4個揃っちゃった～！キミのリーチ確定じゃない～！まずいまずい、うち、地雷踏まないように選ばなきゃ～！`,
-        `${number} で…え、キミがリーチ！？もう4個揃ってるの！？危ない危ない～！うち、ここからが正念場ね～心臓バクバクなんよ～！`,
-        `${number} ！あ、キミがリーチしちゃった～！えーと、何を選んだらキミが5個揃わないかな～焦る～！うちの手も震えてきた～！`,
-        `${number} ！ピンチ！キミがリーチ取っちゃった～！うち、頑張って地雷避けなきゃ～ここが勝負の分かれ目よね～！`,
-        `${number} ！キミのリーチ確定～！わわわ、うち、次に何を選んでもキミが5個揃っちゃう可能性があるじゃない～緊張する～！`,
+        `${number}。あなたがリーチですね。慎重にいかないと。`,
+        `${number}。あなたのボードで4つ揃いました。まずいですね。`,
+        `${number}で。もう4つ揃ってます。正念場です。`,
+        `${number}。あなたがリーチです。気を引き締めないと。`,
+        `${number}。ピンチです。地雷は避けないと。`,
+        `${number}。あなたのリーチが確定しました。慎重にいきます。`,
+        `${number}。これはうっかりでした。あなたのリーチですね。`,
+        `${number}。油断しました。次の一手が肝心ですね。`,
       ],
       lunaReach: [
-        `${number} を選んでくれたおかげで…うちのリーチ成立～！ふふふ、うち、あと1個で勝ちなんよ～！キミ、もう1回選んでね～地雷踏まないように頑張って～！`,
-        `${number} ！あ、うちのボードで4個揃っちゃった～！リーチだ～！キミ、大変ね～次にうちのビンゴ完成させちゃうかもよ～ふふふ～！`,
-        `${number} で…うちがリーチになっちゃった～！あと1個で勝ち～！キミ、どうする～？うち、ドキドキわくわくが止まらないんですけど～！`,
-        `${number} ！え、リーチ来ちゃった～！うち、あと1個よ～！キミ、次に何を選ぶか慎重にね～うちの勝利を阻止できるかな～ふふふ～！`,
-        `${number} ！うちのリーチ確定～！キミ、もう1回番が来るわよ～地雷原を歩くことになっちゃったわね～うち、ワクワクが止まらない～！`,
-        `${number} ！わーいリーチ～！うち、あと1個で勝っちゃうんだけど～キミ、気をつけてね～って言っても難しいかも～うちの運、最高だから～！`,
+        `${number}のおかげで、わたしのリーチが成立しました。あと1つで勝ちです。`,
+        `${number}。わたしのボードで4つ揃いました。リーチですね。`,
+        `${number}で。わたしがリーチになりました。どうしますか？`,
+        `${number}。リーチが来ました。あと1つですね。`,
+        `${number}。わたしのリーチが確定しました。もう1回番が回りますよ。`,
+        `${number}。リーチです。`,
+        `${number}。あと1つで勝利です。`,
+        `${number}。これで決まりが見えてきましたね。`,
       ],
       lunaTurn: [
-        'ターン...何を選ぶのかな～！ふふふ～うち、どの数字を選んだら勝てるのかな～考え中～あ、でもね、うち、どの選択肢を選んでも運がついてくるんよ～ふふふ～',
-        '考え中…何か企んでる～！ふふふふ～秘密の作戦を考えてるんよ～キミには教えない～あ、そういえばね、うち、最近新しいお洋服買ったんだけど～すごく可愛いんよ～ふふふ～',
-        '何か企んでる…こわい～！ふふふ～うち、いい数字が来るように祈ってる～あ、キミ、何か欲しいものある～？うちは別に全部持ってるから～ふふふ～',
-        'ふふふ…いい数字が来るといいな～！うち、めっちゃ真剣に選んでる～キミには内緒～ほら、直感ってのがあるわけよ～うちはね、女神の寵愛を受けてるんよ～ふふふ～',
-        '次は何にしようかな～！うちの勝利のために～ふふふ～最高の数字を選んじゃおう～あ、ちなみにうち、スイーツは全部好きなんよ～フルーツケーキも、チョコも、和菓子も～ふふふ～',
-        '必死に考えてる…キミには内緒にしとく～！ふふふ～うち、究極の選択をしてる～勝利か敗北か、その分かれ目がここ～でもうち、絶対勝つんだけど～ふふふふ～',
-        'ターン中…あ、ちなみにうち、朝は毎日ダブルのサンドイッチ食べるんよ～それでもお昼お腹空くんだけど～ふふふ～あ、今何時～？',
-        '選択中…うち、今めっちゃ考えてる～！あ、でもね、どれ選んでも同じ～うち、勝つってことが決まってるんよ～運命よ～ふふふふ～',
-        'うーん…難しい～！でもね、うち、なんか直感が働く～ふふふ～あ、キミって占いとか信じる～？うちはね、星座占い毎日チェックする～今日も占い見たわ～ふふふ～',
-        '考え中～うち、本気モード～！あ、でもね、相手のキミが強いと思ったのは初めて～尊敬しちゃう～でも勝つのはうちだけど～ふふふ～',
-        'ターン…あ、そういえば、キミって何の星座～？うちは♎なんよ～天秤座～ふふふ～あ、星座で性格分かるらしいけど～ほんとかな～',
-        '選択中…あ、今日お天気いいな～って思った～！外出たい～でもゲーム続けなきゃ～ふふふ～キミ、外出たくない～？',
-        'うーん…何を選ぼうかな～！あ、ちなみにうち、甘党なんよ～辛いものあんまり好きじゃない～スイーツ食べてるのが幸せ～ふふふ～',
-        '考え中…あ、うち、最近ハマってることがあるんよ～それはね～秘密～！ふふふ～でもね、ビンゴくらい面白い～ふふふふ～',
-        'ターン中…あ、キミ、何か得意なことあるのかな～？うちはね、食べること～それと、ビンゴ～ふふふ～あ、あとおしゃべり～ふふふふ～',
-        '選択中…あ、ちなみにね、うち、夜中にお菓子を食べちゃうんよ～そっとね～ふふふ～隠れて食べちゃう～ふふふふ～',
-        'ターン...うち、ドキドキが止まらない～選択って難しい～でも楽しい～ふふふ～',
-        '考え中…何を選ぼうかな～運命の分かれ道～ふふふ～でもうちの運なら大丈夫～ふふふふ～',
+        'どちらを選びましょうか。',
+        '考え中です。作戦がありますよ。',
+        '何を選ぶべきか、考えてます。',
+        'いい数字が来るといいですね。',
+        '次は何にしましょうか。最良の数字を選びますね。',
+        '真剣に考えてます。勝敗の分かれ目ですもんね。',
+        'ターン中です。今、集中してます。',
+        '選択中です。慎重にいきますね。',
+        '難しいところですね。',
+        '考え中です。',
+        '少々お待ちくださいね。',
+        'このあたり、慎重に考えないと。',
+        '盤面をよく見極めてます。',
+        '次の一手が重要ですね。',
       ],
       playerTurnAgain: [
-        'キミのターンだね～もう１回選んでいいんよ～でもね、地雷を踏まないようにね～ふふふ～',
-        'キミがもう１回選ぶんよ～慎重にね～うち、ワクワクして見てる～ふふふふ～',
+        'あなたのターンです。もう1回選んでくださいね。地雷には気をつけて。',
+        'もう1回、あなたの番です。慎重に、わたしも見てますから。',
+        'あなたの番が続きます。落ち着いて選んでくださいね。',
+        'もう一度、あなたの番ですね。',
       ]
     };
     const msgList = messages[type];
     return msgList[Math.floor(Math.random() * msgList.length)];
   };
 
+  const [boardMode, setBoardMode] = useState('closed'); // 'open' | 'closed'
+  const [rulesModalOpen, setRulesModalOpen] = useState(false);
   const [lastCpuNumber, setLastCpuNumber] = useState(null);
   const [playerReach, setPlayerReach] = useState(false);
   const [cpuReach, setCpuReach] = useState(false);
@@ -255,7 +263,8 @@ const BattleBingo = () => {
       setTimeout(() => {
         setJankenPlayerChoice(null);
         setJankenCpuChoice(null);
-      }, 2000);
+        setJankenRound(r => r + 1);
+      }, 1000);
     } else if (result === 'player-win') {
       // ユーザーが勝った（ルナが負けた）→ ルナが先に選ぶ
       setMessage(`キミ: ${emojis[choice]} ⭕️ vs うち: ${emojis[cpuChoice]} ❌\n\n${getRandomMessage('jankenLose')}`);
@@ -756,11 +765,11 @@ const BattleBingo = () => {
     const canClick = !isUsed && currentTurn === 'player' && gameStatus === 'playing' && !reachMode && boardType === 'player';
     
     return (
-      <div 
+      <div
         key={`${boardType}-${number}`}
         onClick={() => canClick && handleNumberClick(number)}
         className={`
-          w-16 h-16 flex items-center justify-center text-xl font-bold rounded-lg
+          w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 flex items-center justify-center text-base sm:text-lg md:text-xl font-bold rounded-lg
           ${bgColor} border-2 ${borderColor} relative transition-all
           ${canClick ? 'cursor-pointer hover:scale-110 hover:shadow-lg' : ''}
           ${number === lastCpuNumber ? 'animate-pulse ring-4 ring-purple-400' : ''}
@@ -770,186 +779,309 @@ const BattleBingo = () => {
       >
         <span className="relative z-10">{number}</span>
         {boardType === 'player' && isOpponentMarked && (
-          <span className="absolute text-3xl text-pink-500 font-black">○</span>
+          <span className="absolute text-2xl sm:text-3xl text-pink-500 font-black">○</span>
         )}
         {boardType === 'player' && isSelfMarked && (
-          <span className="absolute text-3xl text-blue-500 font-black">×</span>
+          <span className="absolute text-2xl sm:text-3xl text-blue-500 font-black">×</span>
         )}
       </div>
     );
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 p-4">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-6xl font-black text-center mb-8 py-4">
-          <span className="inline-block animate-bounce" style={{ color: '#9333ea', animationDelay: '0s' }}>🌟</span>
-          <span className="inline-block mx-2" style={{ color: '#9333ea' }}>対</span>
-          <span className="inline-block mx-2" style={{ color: '#ec4899' }}>戦</span>
-          <span className="inline-block mx-2" style={{ color: '#ef4444' }}>ビ</span>
-          <span className="inline-block mx-2" style={{ color: '#f97316' }}>ン</span>
-          <span className="inline-block mx-2" style={{ color: '#eab308' }}>ゴ</span>
-          <span className="inline-block animate-bounce" style={{ color: '#eab308', animationDelay: '0.2s' }}>🌟</span>
-        </h1>
+  const resetButtonEl = (
+    <button
+      onClick={() => {
+        initializeBoard();
+        setJankenPlayerChoice(null);
+        setJankenCpuChoice(null);
+        setJankenRound(1);
+        setBoardMode('closed');
+        setMessage(getRandomMessage('jankenStart'));
+      }}
+      className="bg-gray-400 text-white px-4 py-2 rounded-full text-xs sm:text-sm font-bold hover:scale-105 transition-transform shadow flex items-center gap-1.5"
+    >
+      <RotateCcw className="w-3.5 h-3.5" />
+      リセット（強制終了）
+    </button>
+  );
 
-        <div className="flex justify-center gap-8 mb-8">
-          <div className="bg-white rounded-2xl p-6 shadow-xl">
-            <h2 className="text-2xl font-bold text-purple-600 mb-4 text-center">
-              🎮 キミ のボード
-            </h2>
-            <div className="grid grid-cols-5 gap-2 justify-items-center">
-              {playerBoard.map((row, i) =>
-                row.map((num, j) => (
-                  <div key={`player-${i}-${j}`}>
-                    {renderCell(num, 'player', i, j)}
-                  </div>
-                ))
-              )}
+  const playerBoardEl = (
+    <div className="relative bg-white rounded-2xl p-2 sm:p-4 md:p-6 shadow-xl border border-purple-100">
+      <h2 className="font-display text-sm sm:text-lg md:text-2xl font-bold text-purple-600 mb-1 sm:mb-3 md:mb-4 text-center">
+        🎮 キミ のボード
+      </h2>
+      <div className="grid grid-cols-5 gap-1 justify-items-center">
+        {playerBoard.map((row, i) =>
+          row.map((num, j) => (
+            <div key={`player-${i}-${j}`}>
+              {renderCell(num, 'player', i, j)}
             </div>
-            <div className="mt-4 text-center text-sm text-gray-600">
-              {gameStatus === 'playing' && reachMode ? 
-                <span className="font-bold text-lg text-purple-600">上の表示をクリックして続ける！</span> : 
-                <span>○ = 相手が選んだ数字 | × = キミが選んだ数字</span>
-              }
-            </div>
-          </div>
+          ))
+        )}
+      </div>
+      <div className="mt-1 sm:mt-4 text-center text-[10px] sm:text-xs md:text-sm text-gray-600">
+        {gameStatus === 'playing' && reachMode ?
+          <span className="font-bold text-sm md:text-lg text-purple-600">上の表示をクリックして続ける！</span> :
+          <span>○ = 相手が選んだ数字 | × = キミが選んだ数字</span>
+        }
+      </div>
+    </div>
+  );
 
-          <div className="bg-yellow-50 rounded-2xl p-6 shadow-xl border-2 border-yellow-300">
-            <h2 className="text-2xl font-bold text-yellow-600 mb-4 text-center">
-              🐛 ルナ（デバッグ）
-            </h2>
-            <div className="grid grid-cols-5 gap-2 justify-items-center">
-              {cpuBoard.map((row, i) =>
-                row.map((num, j) => {
-                  const isSelfMarked = selfMarks.has(num);
-                  const isCpuMarked = opponentMarks.has(num);
-                  return (
-                    <div 
-                      key={`cpu-${i}-${j}`}
-                      className={`
-                        w-12 h-12 flex items-center justify-center text-sm font-bold rounded-lg relative
-                        ${isCpuMarked ? 'bg-red-300 border-2 border-red-500' : isSelfMarked ? 'bg-blue-300 border-2 border-blue-500' : 'bg-yellow-100 border-2 border-yellow-300'}
-                      `}
-                    >
-                      <span className="relative z-10">{num}</span>
-                      {isCpuMarked && (
-                        <span className="absolute text-2xl text-red-500 font-black">×</span>
-                      )}
-                      {isSelfMarked && (
-                        <span className="absolute text-2xl text-blue-500 font-black">○</span>
-                      )}
-                    </div>
-                  );
-                })
-              )}
-            </div>
-            <div className="mt-4 text-center text-xs text-yellow-700">
-              × = ルナ が選んだ数字 | ○ = キミが選んだ数字
-            </div>
-          </div>
-        </div>
+  const historyEl = currentTurn !== 'janken' && (
+    <div className="mt-1 flex items-center gap-1.5 flex-wrap text-[10px] sm:text-xs md:text-sm">
+      <span className="font-bold text-gray-500">選択番号履歴:</span>
+      {turnHistory.map((turn, idx) => (
+        <span
+          key={idx}
+          className={`font-bold ${turn.player === 'player' ? 'text-blue-600' : 'text-red-600'}`}
+        >
+          {turn.number}
+        </span>
+      ))}
+    </div>
+  );
 
-        <div className="text-center">
-          {gameStatus === 'playing' && (
-            <div className="mb-4 text-lg font-bold text-gray-700 flex gap-2 justify-between items-end px-4">
-              <div className="flex gap-1 items-end flex-wrap">
-                {turnHistory.map((turn, idx) => (
-                  <div
-                    key={idx}
-                    className={`text-sm ${turn.player === 'player' ? 'text-blue-600' : 'text-red-600'}`}
-                  >
-                    {turn.number}
-                  </div>
-                ))}
-                <div className="ml-2">
-                  {currentTurn === 'janken' ? 'じゃんけん' :
-                   currentTurn === 'player' ? `ターン${turnHistory.length + 1}：キミ` :
-                   `ターン${turnHistory.length + 1}：ルナ`}
-                </div>
+  const renderLunaBoard = (compact) => (
+    <div className={`bg-amber-50 shadow-xl border border-amber-200 ${compact ? 'rounded-md p-1' : 'rounded-2xl p-3 sm:p-4 md:p-6'}`}>
+      <h2 className={`font-display font-bold text-amber-600 text-center ${compact ? 'text-xs mb-0.5' : 'text-base md:text-2xl mb-3 md:mb-4'}`}>
+        🐛 {compact ? 'ルナ' : 'ルナ（オープン公開中）'}
+      </h2>
+      <div className={`grid grid-cols-5 justify-items-stretch ${compact ? 'gap-0.5' : 'gap-0.5 md:gap-1'}`}>
+        {cpuBoard.map((row, i) =>
+          row.map((num, j) => {
+            const isSelfMarkedCell = selfMarks.has(num);
+            const isCpuMarkedCell = opponentMarks.has(num);
+            return (
+              <div
+                key={`cpu-${i}-${j}`}
+                className={`
+                  flex items-center justify-center font-bold rounded relative
+                  ${compact ? 'aspect-square w-full text-sm' : 'w-8 h-8 sm:w-10 sm:h-10 md:w-16 md:h-16 rounded-lg text-xs sm:text-sm md:text-xl'}
+                  ${isCpuMarkedCell ? 'bg-red-300 border border-red-500' : isSelfMarkedCell ? 'bg-blue-300 border border-blue-500' : 'bg-amber-100 border border-amber-300'}
+                `}
+              >
+                <span className="relative z-10">{num}</span>
+                {isCpuMarkedCell && (
+                  <span className={`absolute font-black text-red-500 ${compact ? 'text-base' : 'text-lg sm:text-xl md:text-2xl'}`}>×</span>
+                )}
+                {isSelfMarkedCell && (
+                  <span className={`absolute font-black text-blue-500 ${compact ? 'text-base' : 'text-lg sm:text-xl md:text-2xl'}`}>○</span>
+                )}
               </div>
-              {currentTurn === 'player' && gameStatus === 'playing' && !reachMode && (
-                <button
-                  onClick={handleAutoSelect}
-                  className="bg-blue-500 text-white px-4 py-2 rounded-full font-bold text-sm cursor-pointer hover:scale-105 transition-transform shadow-lg flex items-center gap-2"
-                >
-                  <Wand2 className="w-4 h-4" />
-                  おまかせ
-                </button>
-              )}
+            );
+          })
+        )}
+      </div>
+      {!compact && (
+        <div className="mt-3 md:mt-4 text-center text-[10px] sm:text-xs text-amber-700">
+          × = ルナ が選んだ数字 | ○ = キミが選んだ数字
+        </div>
+      )}
+    </div>
+  );
+
+  const controlsEl = (
+    <div className="text-center">
+      {currentTurn === 'janken' && (
+        <div className="mb-4">
+          <label className="flex items-center justify-center gap-3 cursor-pointer select-none">
+            <span className={`text-xs md:text-sm font-bold transition-colors ${boardMode === 'closed' ? 'text-gray-700' : 'text-gray-400'}`}>
+              🙈 クローズ
+            </span>
+            <span
+              role="switch"
+              aria-checked={boardMode === 'open'}
+              onClick={() => setBoardMode(boardMode === 'open' ? 'closed' : 'open')}
+              className={`relative w-12 h-7 md:w-14 md:h-8 rounded-full transition-colors duration-200 ${boardMode === 'open' ? 'bg-yellow-500' : 'bg-gray-400'}`}
+            >
+              <span
+                className={`absolute top-1 left-1 w-5 h-5 md:w-6 md:h-6 bg-white rounded-full shadow-md transition-transform duration-200 ${boardMode === 'open' ? 'translate-x-5 md:translate-x-6' : 'translate-x-0'}`}
+              />
+            </span>
+            <span className={`text-xs md:text-sm font-bold transition-colors ${boardMode === 'open' ? 'text-yellow-600' : 'text-gray-400'}`}>
+              👁️ オープン
+            </span>
+          </label>
+          <p className="mt-1 text-[10px] md:text-xs text-gray-500 text-center">
+            クローズ：ルナのボードは見えません／オープン：ルナのボードも見えます
+          </p>
+        </div>
+      )}
+      {gameStatus === 'playing' && (
+        <div className="mb-2 sm:mb-4 bg-white/60 rounded-xl px-2 py-1 sm:px-4 sm:py-2 md:py-3 flex gap-2 items-end flex-wrap w-[98%] md:max-w-lg mx-auto">
+          <div className="flex gap-1 items-end flex-wrap text-sm md:text-lg font-bold text-gray-700">
+            <div>
+              {currentTurn === 'janken' ? (jankenRound > 1 ? `じゃんけん（${jankenRound}回目）` : 'じゃんけん') :
+               currentTurn === 'player' ? `ターン${turnHistory.length + 1}：キミ` :
+               `ターン${turnHistory.length + 1}：ルナ`}
             </div>
+          </div>
+          {currentTurn === 'player' && gameStatus === 'playing' && !reachMode && (
+            <button
+              onClick={handleAutoSelect}
+              className="ml-auto bg-blue-500 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-full font-bold text-xs md:text-sm cursor-pointer hover:scale-105 transition-transform shadow-lg flex items-center gap-1.5 md:gap-2"
+            >
+              <Wand2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
+              おまかせ
+            </button>
           )}
-          <p className="text-2xl font-bold text-purple-600 mb-4 whitespace-pre-line">{message}</p>
-          <div className="flex justify-center gap-4 items-center flex-wrap relative">
-            {currentTurn === 'janken' && (
-              <>
-                <button
-                  onClick={() => handleJankenChoice('グー')}
-                  className="bg-red-500 text-white px-8 py-4 rounded-full font-bold text-3xl cursor-pointer hover:scale-105 transition-transform shadow-lg"
-                >
-                  ✊
-                </button>
-                <button
-                  onClick={() => handleJankenChoice('チョキ')}
-                  className="bg-yellow-500 text-white px-8 py-4 rounded-full font-bold text-3xl cursor-pointer hover:scale-105 transition-transform shadow-lg"
-                >
-                  ✌️
-                </button>
-                <button
-                  onClick={() => handleJankenChoice('パー')}
-                  className="bg-blue-500 text-white px-8 py-4 rounded-full font-bold text-3xl cursor-pointer hover:scale-105 transition-transform shadow-lg"
-                >
-                  ✋
-                </button>
-              </>
-            )}
-            {reachMode === 'player-reach' && (
-              <div 
-                onClick={handleReachClick}
-                className="bg-green-500 text-white px-8 py-4 rounded-full font-bold animate-pulse text-xl cursor-pointer hover:scale-105 transition-transform shadow-2xl"
-              >
-                <Target className="inline mr-2 w-8 h-8" />
-                むむっ、ルナもう１回…
-              </div>
-            )}
-            {reachMode === 'luna-reach' && (
-              <div 
-                onClick={handleReachClick}
-                className="bg-red-500 text-white px-8 py-4 rounded-full font-bold animate-pulse text-xl cursor-pointer hover:scale-105 transition-transform shadow-2xl"
-              >
-                <Target className="inline mr-2 w-8 h-8" />
-                ふふっ、キミもう１回です！
-              </div>
-            )}
-          </div>
         </div>
-
-        <div className="flex justify-start px-8">
+      )}
+      {!(boardMode === 'open' && currentTurn !== 'janken') && (
+        <p className="text-sm sm:text-base md:text-2xl font-bold text-purple-600 mb-2 sm:mb-4 whitespace-pre-line px-1 max-w-[85%] sm:max-w-sm md:max-w-xl mx-auto">{message}</p>
+      )}
+      <div className="flex justify-center gap-3 md:gap-4 items-center flex-wrap relative">
+        {currentTurn === 'janken' && jankenPlayerChoice === null && (
+          <>
+            <button
+              onClick={() => handleJankenChoice('グー')}
+              className="bg-red-500 text-white px-4 py-1.5 md:px-5 md:py-2 rounded-full font-bold text-xl md:text-2xl cursor-pointer hover:scale-105 transition-transform shadow-lg"
+            >
+              ✊
+            </button>
+            <button
+              onClick={() => handleJankenChoice('チョキ')}
+              className="bg-yellow-500 text-white px-4 py-1.5 md:px-5 md:py-2 rounded-full font-bold text-xl md:text-2xl cursor-pointer hover:scale-105 transition-transform shadow-lg"
+            >
+              ✌️
+            </button>
+            <button
+              onClick={() => handleJankenChoice('パー')}
+              className="bg-blue-500 text-white px-4 py-1.5 md:px-5 md:py-2 rounded-full font-bold text-xl md:text-2xl cursor-pointer hover:scale-105 transition-transform shadow-lg"
+            >
+              ✋
+            </button>
+          </>
+        )}
+        {reachMode === 'player-reach' && (
+          <div
+            onClick={handleReachClick}
+            className="bg-green-500 text-white px-3 py-1.5 md:px-5 md:py-2.5 rounded-full font-bold animate-pulse text-xs md:text-base cursor-pointer hover:scale-105 transition-transform shadow-lg"
+          >
+            <Target className="inline mr-1 w-4 h-4 md:w-5 md:h-5" />
+            ルナ、もう1回
+          </div>
+        )}
+        {reachMode === 'luna-reach' && (
+          <div
+            onClick={handleReachClick}
+            className="bg-red-500 text-white px-3 py-1.5 md:px-5 md:py-2.5 rounded-full font-bold animate-pulse text-xs md:text-base cursor-pointer hover:scale-105 transition-transform shadow-lg"
+          >
+            <Target className="inline mr-1 w-4 h-4 md:w-5 md:h-5" />
+            キミ、もう1回です
+          </div>
+        )}
+        {gameStatus !== 'playing' && (
           <button
             onClick={() => {
               initializeBoard();
               setJankenPlayerChoice(null);
               setJankenCpuChoice(null);
+              setJankenRound(1);
+              setBoardMode('closed');
               setMessage(getRandomMessage('jankenStart'));
             }}
-            className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:scale-105 transition-transform shadow-lg flex items-center gap-3"
+            className="bg-purple-500 text-white px-4 py-1.5 md:px-6 md:py-2.5 rounded-full font-bold text-xs md:text-base cursor-pointer hover:scale-105 transition-transform shadow-lg flex items-center gap-1.5"
           >
-            <RotateCcw className="w-6 h-6" />
-            新しいゲーム
+            <RotateCcw className="w-3.5 h-3.5 md:w-4 md:h-4" />
+            終了（次のゲームへ）
           </button>
-        </div>
+        )}
+      </div>
+    </div>
+  );
 
-        <div className="mt-8 bg-white rounded-2xl p-6 shadow-xl">
-          <h3 className="text-2xl font-bold text-purple-600 mb-4">📋 ルール</h3>
-          <ul className="space-y-2 text-gray-700">
-            <li>✨ 5×5のマスに1～25の数字がランダムに配置されます～</li>
-            <li>✨ キミとうちが交互に数字を選択しちゃいます～</li>
-            <li>✨ キミが選んだ数字には × マーク、うちが選んだ数字には ○ マーク～</li>
-            <li>✨ 一度使った数字は誰も使えないんですけど～</li>
-            <li>✨ キミのボードで ○ が4つ揃ったら「キミのリーチ」～！うちがもう1回選ばされちゃう～</li>
-            <li>✨ うちのボードで ○ が4つ揃ったら「うちのリーチ」～！キミがもう1回選ばされちゃう～</li>
-            <li>✨ リーチの時は上の表示をクリックして続けるんですけど～</li>
-            <li>✨ 5つ揃ったら（縦・横・斜め）勝利～！うふふふ！</li>
-          </ul>
+  return (
+    <div className={`${displayFont.variable} min-h-screen bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 p-1.5 sm:p-4 md:p-6`}>
+      <div className="max-w-5xl mx-auto">
+        <h1
+          className={`font-display font-black text-center transition-all ${
+            currentTurn === 'janken'
+              ? 'text-xl sm:text-2xl md:text-4xl mb-4 md:mb-6 py-1 md:py-2'
+              : 'hidden md:block md:text-4xl md:mb-6 md:py-2'
+          }`}
+        >
+          <span className="inline-block animate-bounce" style={{ color: '#9333ea', animationDelay: '0s' }}>🌟</span>
+          <span className="inline-block mx-1 md:mx-2" style={{ color: '#9333ea' }}>対</span>
+          <span className="inline-block mx-1 md:mx-2" style={{ color: '#ec4899' }}>戦</span>
+          <span className="inline-block mx-1 md:mx-2" style={{ color: '#ef4444' }}>ビ</span>
+          <span className="inline-block mx-1 md:mx-2" style={{ color: '#f97316' }}>ン</span>
+          <span className="inline-block mx-1 md:mx-2" style={{ color: '#eab308' }}>ゴ</span>
+          <span className="inline-block animate-bounce" style={{ color: '#eab308', animationDelay: '0.2s' }}>🌟</span>
+        </h1>
+
+        {currentTurn === 'janken' ? (
+          <div className="mb-6 md:mb-8">{controlsEl}</div>
+        ) : (
+          <>
+            <div className="mb-2 sm:mb-6 md:mb-8">
+              {boardMode === 'open' && (
+                <div className="flex items-stretch gap-2 w-[98%] md:max-w-lg mx-auto mb-1.5 sm:mb-2">
+                  <div className="w-[40%] flex-shrink-0">
+                    {renderLunaBoard(true)}
+                  </div>
+                  <div className="w-[58%] bg-white/85 rounded-lg shadow px-2 py-1.5 sm:px-3 sm:py-2 flex flex-col">
+                    <div className="flex-1 flex items-center justify-center text-center text-[11px] sm:text-xs md:text-sm text-purple-600 font-bold whitespace-pre-line">
+                      {message}
+                    </div>
+                    {historyEl}
+                  </div>
+                </div>
+              )}
+              <div className="flex justify-center">
+                <div className="w-full max-w-xs sm:max-w-sm md:max-w-md">
+                  {playerBoardEl}
+                  {boardMode !== 'open' && historyEl}
+                </div>
+              </div>
+            </div>
+            {controlsEl}
+          </>
+        )}
+
+        {rulesModalOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={() => setRulesModalOpen(false)}
+          >
+            <div
+              className="bg-white rounded-2xl p-4 md:p-6 shadow-xl max-w-md w-full max-h-[80vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg md:text-xl font-bold text-purple-600">📋 ルール</h3>
+                <button
+                  onClick={() => setRulesModalOpen(false)}
+                  className="text-gray-400 hover:text-gray-600 text-2xl font-bold leading-none px-2"
+                >
+                  ×
+                </button>
+              </div>
+              <ul className="space-y-2 text-sm md:text-base text-gray-700">
+                <li>・ 5×5のマスに1〜25の数字がランダムに配置されます。</li>
+                <li>・ じゃんけんで勝敗を決め、負けた方が先攻になります。</li>
+                <li>・ プレイヤーとルナが交互に数字を選択します。</li>
+                <li>・ プレイヤーが選んだ数字には × マーク、ルナが選んだ数字には ○ マークが付きます。</li>
+                <li>・ 一度使用した数字は、以降どちらも選択できません。</li>
+                <li>・ プレイヤーのボードで ○ が4つ揃うと「プレイヤーのリーチ」となり、ルナがもう1回選択します。</li>
+                <li>・ ルナのボードで ○ が4つ揃うと「ルナのリーチ」となり、プレイヤーがもう1回選択します。</li>
+                <li>・ リーチの際は、画面上部の表示をクリックして進めてください。</li>
+                <li>・ 縦・横・斜めのいずれかで5つ揃えば勝利となります。</li>
+                <li>・ 先攻は自分の数字に先に × がついてしまうため、実はやや不利です。中央など多くのライン上にあるマスの数字は特に価値が高いので狙い目です。</li>
+              </ul>
+            </div>
+          </div>
+        )}
+
+        <div className="flex justify-between items-center mt-4 mb-4 w-[98%] md:max-w-lg mx-auto">
+          {resetButtonEl}
+          <button
+            onClick={() => setRulesModalOpen(true)}
+            className="bg-purple-100 text-purple-600 px-3 py-1 rounded-full text-xs font-bold shadow hover:scale-105 transition-transform"
+          >
+            📋 ルール
+          </button>
         </div>
       </div>
     </div>
